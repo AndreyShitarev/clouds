@@ -1,0 +1,17 @@
+services:
+  web:
+    build: .
+    privileged: true
+    network_mode: "host"
+    volumes:
+      - "/:/host_root"
+    environment:
+      - APP_TOKEN=token_for_example
+    ports:
+      - "80:80"
+
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres_pwd
