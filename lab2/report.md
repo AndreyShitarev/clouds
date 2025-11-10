@@ -13,6 +13,7 @@
 Давайте сравним хороший и плохой Dockerfile
 
 ### Плохой:
+```
 
 FROM debian:bookworm
 
@@ -27,11 +28,11 @@ ADD . /srv/project
 ENV APP_TOKEN="token_for_example"
 
 CMD ["python3", "/srv/project/hello.py"]
-
+```
 
 
 ### Хороший
-
+```
 FROM python:3.11.4-slim
 
 RUN addgroup --system svcgroup && adduser --system --ingroup svcgroup svcuser
@@ -43,7 +44,7 @@ COPY hello.py .
 USER svcuser
 
 CMD ["python", "hello.py"]
-
+```
 
 
 
@@ -67,7 +68,7 @@ CMD ["python", "hello.py"]
 Теперь ошибки в файле docker_compose.yml
 
 ### Плохой
- 
+``` 
 services:
 
   web:
@@ -99,8 +100,8 @@ services:
       POSTGRES_USER: postgres
       
       POSTGRES_PASSWORD: postgres_pwd
-      
-
+```      
+```
 ### Хороший
 
 services:
@@ -153,7 +154,7 @@ services:
       
     restart: unless-stopped
     
-
+```
  
 ### Ошибки:
 
