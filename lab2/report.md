@@ -31,8 +31,9 @@ CMD ["python3", "/srv/project/hello.py"]
 ```
 
 
-### Хороший
+### Хороший:
 ```
+
 FROM python:3.11.4-slim
 
 RUN addgroup --system svcgroup && adduser --system --ingroup svcgroup svcuser
