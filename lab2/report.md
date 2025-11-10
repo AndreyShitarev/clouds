@@ -15,22 +15,35 @@
 Плохой
 
 FROM debian:bookworm
+
 RUN apt update
+
 RUN apt install -y python3 python3-pip curl
+
 ADD https://randomsite.com/randomarchive.tar.gz /tmp/external/
+
 ADD . /srv/project
+
 ENV APP_TOKEN="token_for_example"
+
 CMD ["python3", "/srv/project/hello.py"]
+
 
 
 Хороший
 
 FROM python:3.11.4-slim
+
 RUN addgroup --system svcgroup && adduser --system --ingroup svcgroup svcuser
+
 WORKDIR /usr/src/app
+
 COPY hello.py .
+
 USER svcuser
+
 CMD ["python", "hello.py"]
+
 
 
 
@@ -56,49 +69,90 @@ CMD ["python", "hello.py"]
 Плохой
  
 services:
+
   web:
+  
     build: .
+    
     privileged: true
+    
     network_mode: "host"
+    
     volumes:
+    
       - "/:/host_root"
+      
     environment:
+    
       - APP_TOKEN=token_for_example
+      
     ports:
+    
       - "80:80"
+      
   db:
+  
     image: postgres:latest
+    
     environment:
+    
       POSTGRES_USER: postgres
+      
       POSTGRES_PASSWORD: postgres_pwd
+      
 
 Хороший
 
 services:
+
   web:
+  
     build: .
+    
     ports:
+    
       - "80:80"
+      
     volumes:
+    
       - ./admin_secret.txt:/run/secrets/admin_secret.txt:ro
+      
     environment:
+    
       - ADMIN_SECRET_PATH=/run/secrets/admin_secret.txt
+      
     restart: unless-stopped
+    
     healthcheck:
+    
       test: ["CMD", "python", "-c", "import os,sys; sys.exit(0 if os.path.exists(os.environ.get('ADMIN_SECRET_PATH','')) else 1)"]
+      
       interval: 10s
+      
       timeout: 5s
+      
       retries: 5
+      
   db:
+  
     image: postgres:15-alpine
+    
     environment:
+    
       POSTGRES_USER: appdb
+      
       POSTGRES_PASSWORD: postgres_password_example
+      
     volumes:
+    
       - pgdata:/var/lib/postgresql/data
+      
     ports:
+    
       - "1234:1234"
+      
     restart: unless-stopped
+    
 
  
 Ошибки:
