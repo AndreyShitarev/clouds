@@ -16,4 +16,44 @@
 
 # Вот так выглядит этот файл 
 ```
+services:
+  web:
+    build: .
+    ports:
+      - "80:80"
+    volumes:
+      - ./admin_secret.txt:/run/secrets/admin_secret.txt:ro
+    environment:
+      - ADMIN_SECRET_PATH=/run/secrets/admin_secret.txt
+    restart: unless-stopped
+    networks:
+      - web_net
+    healthcheck:
+      test: ["CMD", "python", "-c", "import os,sys; sys.exit(0 if os.path.exists(os.environ.get('ADMIN_SECRET_PATH','')) else 1)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: appdb
+      POSTGRES_PASSWORD: postgres_password_example
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "1234:1234"
+    restart: unless-stopped
+    networks:
+      - db_net
+
+volumes:
+  pgdata:
+
+networks:
+  web_net:
+    driver: bridge
+  db_net:
+    driver: bridge
+```
 
