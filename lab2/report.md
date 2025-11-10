@@ -102,9 +102,9 @@ services:
       
       POSTGRES_PASSWORD: postgres_pwd
 ```      
-```
-### Хороший
 
+### Хороший
+```
 services:
 
   web:
