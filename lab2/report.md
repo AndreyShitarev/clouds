@@ -1,18 +1,37 @@
 Лабораторная работа №2
+
 Цель
+
 Написать 2 докер-файла
 1.	Плохой (bad_practice), в котором будут допущены намеренные ошибки, файл должен быть примером того, как делать не надо и опасно.
 2.	Хороший (nice_practice), в котором исправлены ошибки “плохого” докер-файла.
 После написания двух файлов, проанализировать результат и сделать выводы о том, как правильно и безопасно написать докер-файл.
 
 Выполнение работы
+
 Сначала я создал две директории: bad_practice – для докер-файла с ошибками, nice_practice – для исправленного. 
 Давайте сравним хороший и плохой Dockerfile
+
 Плохой
+
+FROM debian:bookworm
+RUN apt update
+RUN apt install -y python3 python3-pip curl
+ADD https://randomsite.com/randomarchive.tar.gz /tmp/external/
+ADD . /srv/project
+ENV APP_TOKEN="token_for_example"
+CMD ["python3", "/srv/project/hello.py"]
 
 
 Хороший
- 
+
+FROM python:3.11.4-slim
+RUN addgroup --system svcgroup && adduser --system --ingroup svcgroup svcuser
+WORKDIR /usr/src/app
+COPY hello.py .
+USER svcuser
+CMD ["python", "hello.py"]
+
 
 
 Ошибки в докер фале:
@@ -33,14 +52,57 @@
 •	Исправлено созданием непривилегированного пользователя и рабочей директории.
 
 Теперь ошибки в файле docker_compose.yml
+
 Плохой
  
-
-
+services:
+  web:
+    build: .
+    privileged: true
+    network_mode: "host"
+    volumes:
+      - "/:/host_root"
+    environment:
+      - APP_TOKEN=token_for_example
+    ports:
+      - "80:80"
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres_pwd
 
 Хороший
+
+services:
+  web:
+    build: .
+    ports:
+      - "80:80"
+    volumes:
+      - ./admin_secret.txt:/run/secrets/admin_secret.txt:ro
+    environment:
+      - ADMIN_SECRET_PATH=/run/secrets/admin_secret.txt
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import os,sys; sys.exit(0 if os.path.exists(os.environ.get('ADMIN_SECRET_PATH','')) else 1)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: appdb
+      POSTGRES_PASSWORD: postgres_password_example
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "1234:1234"
+    restart: unless-stopped
+
  
 Ошибки:
+
 1.	Запуск в привилегированном режиме
 Режим privileged даёт контейнеру доступ к ядру и устройствам хоста.  В исправленном варианте контейнер работает с минимальными правами.
 2.	использование network_mode: host
@@ -48,5 +110,7 @@
 3.	монтирование корня файловой системы хоста
 •	Монтаж / даёт контейнеру доступ ко всем файлам хоста, включая системные.
 •	В исправленном варианте монтируется только один файл-секрет, причём в режиме read-only.
+
 Вывод
+
 В результате выполнения этой лабораторной работы я разобрался не только в основынх ошибках при написании докер файла, но и об ошибках, которые можно допустить в yml файлах. Помимо этого, я узнал очень много новых команд Dockerfile и особенности их использования. Думаю, это полезный опыт. 
