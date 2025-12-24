@@ -156,6 +156,11 @@ services:
     restart: unless-stopped
     
 ```
+
+### Скрины запуска хорошего docker-файла
+<img width="1280" height="1201" alt="Screenshot 2025-12-24 213739" src="https://github.com/user-attachments/assets/778a20d2-8d15-4136-9e11-a4da5dca686d" />
+<img width="1280" height="1252" alt="Screenshot 2025-12-24 213728" src="https://github.com/user-attachments/assets/38c02ad2-d622-416b-95c0-f420fb14bf22" />
+
  
 ### Ошибки:
 
