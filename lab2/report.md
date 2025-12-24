@@ -101,7 +101,12 @@ services:
       POSTGRES_USER: postgres
       
       POSTGRES_PASSWORD: postgres_pwd
-```      
+```
+
+### Скриншот с запуском плохого Docker-файла
+<img width="1280" height="324" alt="Screenshot 2025-12-24 214928" src="https://github.com/user-attachments/assets/a41e10dc-21ab-4fff-a474-c9ddb4912181" />
+
+
 
 ### Хороший
 ```
